@@ -2,6 +2,8 @@
 - name: Hostname
   ansible.builtin.command:
     cmd: hostnamectl set-hostname {{ domain_name }}
+  when: 
+    - domain_name is defined
   changed_when: ansible_facts['hostname'] != domain_name
 
 - name: Get current timezone
@@ -62,7 +64,7 @@
   become: true
   tags: disable_swap
 
-- name: Save generated SSH port to ssh_port variable
+- name: Save generated SSH port to ssh_new_port variable
   ansible.builtin.set_fact:
     generated_ssh_port: "{{ ssh_new_port }}"
     generated_user_password: "{{ user_password }}"

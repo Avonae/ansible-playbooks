@@ -36,14 +36,14 @@
 
 - name: Post install tasks
   hosts: all
+  remote_user: "{{ server_user }}"
+  become: true
+  vars:
+    ansible_ssh_pass: "{{ generated_user_password }}"
+    ansible_become_password: "{{ generated_user_password }}"
   gather_facts: false
   tasks:
     - name: System upgrade
-      remote_user: "{{ server_user }}"
-      vars:
-        ansible_ssh_pass: "{{ generated_user_password }}"
-        ansible_become_password: "{{ generated_user_password }}"
-      become: true
       ansible.builtin.apt:
         update_cache: true
         upgrade: dist
@@ -60,7 +60,7 @@
       ansible.builtin.command: ufw --force enable
       register: ufw_status
       changed_when: "'inactive' in ufw_check.stdout"
-      when: enable_ufw
+      when: enable_ufw | default(false)
 
     - name: Display final connection details
       ansible.builtin.debug:
@@ -73,4 +73,3 @@
           - "  - Server IP: {{ ansible_host }}"
           - "  - SSH Port: {{ generated_ssh_port }}"
           - "  - UFW status: {{ ufw_status.stdout }}"
-      when: update_install | default(false)
