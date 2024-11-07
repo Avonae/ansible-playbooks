@@ -5,6 +5,7 @@
   when: 
     - domain_name is defined
   changed_when: ansible_facts['hostname'] != domain_name
+  when: domain_name | default('') | length > 0
 
 - name: Get current timezone
   ansible.builtin.command:
