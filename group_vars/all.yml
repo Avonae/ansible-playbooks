@@ -8,3 +8,27 @@ super_user_password: "123" # Put your root password here
 time_zone: Asia/Tbilisi # Put your timezone password here
 user_password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=16) }}"
 enable_ufw: true
+update_install: false
+necessary_packages:
+  - htop
+  - telnet
+  - tcpdump
+  - nmap
+  - curl
+  - zip
+  - unzip
+  - vim
+  - less
+  - lsof
+  - strace
+  - ncdu
+  - smartmontools
+  - tree
+  - rsyslog
+  - git
+  - uidmap
+  - atop
+  - ufw
+  - dbus-user-session
+  - ca-certificates
+  - fail2ban
