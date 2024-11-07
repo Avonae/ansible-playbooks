@@ -36,14 +36,15 @@
 
 - name: Post install tasks
   hosts: all
-  gather_facts: false
-  tasks:
-    - name: System upgrade
-      remote_user: "{{ server_user }}"
-      vars:
+  vars:
         ansible_ssh_pass: "{{ generated_user_password }}"
         ansible_become_password: "{{ generated_user_password }}"
-      become: true
+  remote_user: "{{ server_user }}"
+  gather_facts: false
+  become: true
+  tasks:
+
+    - name: System upgrade
       ansible.builtin.apt:
         update_cache: true
         upgrade: dist
@@ -73,4 +74,3 @@
           - "  - Server IP: {{ ansible_host }}"
           - "  - SSH Port: {{ generated_ssh_port }}"
           - "  - UFW status: {{ ufw_status.stdout }}"
-      when: update_install | default(false)

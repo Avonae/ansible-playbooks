@@ -1,7 +1,8 @@
 # group_vars/all.yml
 
-domain_name: ""
+#domain_name: ""
 super_user: "root"
+server_user: "user"
 ssh_old_port: 22
 ssh_new_port: "{{ 30000 | random(20000) }}"
 super_user_password: "123" # Put your root password here

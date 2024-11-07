@@ -46,19 +46,6 @@
   #  become: true
   when: not ansible_check_mode
 
-- name: Display final connection details
-  ansible.builtin.debug:
-    msg:
-      - Setup completed successfully!
-      - "Use the following details to connect to the server:"
-      - "  - SSH Key Path: ~/.ssh/id_rsa_{{ ansible_host | default(inventory_hostname) }}"
-      - "  - Username: {{ server_user }}"
-      - "  - Password: {{ password_content.content | b64decode }}"
-      - "  - Server IP: {{ ansible_host }}"
-      - "  - SSH Port: {{ generated_ssh_port }}"
-  when: not update_install
-  tags: final_message
-
 - name: Ensure password file exists
   ansible.builtin.stat:
     path: /home/{{ server_user }}/.ansible/tmp/user_password.txt
