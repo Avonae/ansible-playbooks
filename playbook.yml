@@ -40,7 +40,6 @@
 - name: Post install tasks
   hosts: all
   remote_user: "{{ server_user }}"
-  become: true
   vars:
     ansible_ssh_pass: "{{ generated_user_password }}"
     ansible_become_password: "{{ generated_user_password }}"
