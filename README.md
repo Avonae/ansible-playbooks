@@ -55,9 +55,15 @@ That's it.
 # Default variables
 The repository already have variables file in `group_vars/all.yml` like:
 ```yaml
+# domain_name:
+super_user: "root"
 server_user: "user" # Put name of your sudo user here
-super_user_password: "123" # Put your root password here
-time_zone: "Asia/Tbilisi" # Put your timezone password here
+ssh_old_port: 22
+time_zone: "Asia/Tbilisi" # Put your timezone here. This is Linux timezone format 
+enable_ufw: true
+update_install: false
+necessary_packages:
+  - htop # and other packages
 ```
 Change them for your needs.
 
