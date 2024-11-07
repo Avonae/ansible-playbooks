@@ -1,4 +1,5 @@
 # Ansible Roles for Ubuntu Server Setup and Configuration
+[![ansible-lint](https://github.com/Avonae/ansible-playbooks/actions/workflows/ansible-lint.yml/badge.svg?branch=main)](https://github.com/Avonae/ansible-playbooks/actions/workflows/ansible-lint.yml)
 
 This repository includes a series of Ansible roles designed to automate the setup and configuration of a server, with a focus on system settings, SSH configuration, and user environment customization. The roles are organized to be executed in the following order:
 
