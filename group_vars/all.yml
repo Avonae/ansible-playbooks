@@ -7,3 +7,4 @@ ssh_new_port: "{{ 30000 | random(20000) }}"
 super_user_password: "123" # Put your root password here
 time_zone: Asia/Tbilisi # Put your timezone password here
 user_password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=16) }}"
+enable_ufw: true

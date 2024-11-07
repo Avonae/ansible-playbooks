@@ -60,6 +60,7 @@
       ansible.builtin.command: ufw --force enable
       register: ufw_status
       changed_when: "'inactive' in ufw_check.stdout"
+      when: enable_ufw
 
     - name: Display final connection details
       ansible.builtin.debug:
@@ -71,6 +72,6 @@
           - "  - Password: {{ password_content.content | b64decode }}"
           - "  - Server IP: {{ ansible_host }}"
           - "  - SSH Port: {{ generated_ssh_port }}"
-          - "  - UFW has been enabled with status: {{ ufw_status.stdout }}"
+          - "  - UFW status: {{ ufw_status.stdout }}"
       when: update_install | default(false)
 
