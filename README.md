@@ -1,7 +1,7 @@
 # Ansible Ubuntu server secure setup
 [![ansible-lint](https://github.com/Avonae/ansible-playbooks/actions/workflows/ansible-lint.yml/badge.svg?branch=main)](https://github.com/Avonae/ansible-playbooks/actions/workflows/ansible-lint.yml)
 
-This playbook allows you to configure Ubuntu quickly and securely. Assuming that [Ansible is already installed](https://docs.ansible.com/ansible/latest/installation_guide/) on your system.
+This playbook allows you to configure Ubuntu quickly and securely. Assuming that [Ansible has been already installed](https://docs.ansible.com/ansible/latest/installation_guide/) on your system.
 The main actions performed by the playbook are:
 
 - Changes the SSH port to a random one within the range 20000-30000
