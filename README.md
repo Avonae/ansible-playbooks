@@ -51,6 +51,10 @@ And get connected via sudo user:
 ![image](https://github.com/user-attachments/assets/ada9fdca-c10c-4e49-b972-941dff3bf337)
 
 That's it.
+If you want detailed output, uncomment this line in `ansible.cfg`:
+```yaml
+verbosity = 2 #uncomment this if you want to show detailed information
+```
 
 # Default variables
 The repository already have variables file in `group_vars/all.yml` like:
