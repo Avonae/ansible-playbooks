@@ -18,7 +18,7 @@ The installation consist of 3 parts:
 
 You can skip the `profile_update` and `ssh_setup` tags, but you can't skip `system_setup` because a user is created there which is used in the following roles.
 
-```
+```bash
 ansible-playbook playbook.yml --tags "system_setup,ssh_setup"
 ```
 
@@ -26,24 +26,24 @@ ansible-playbook playbook.yml --tags "system_setup,ssh_setup"
 For default installation you should have a clean ubuntu server with `root` user available through SSH.
 
 1. Download the repository:
-```
+```bash
 git clone https://github.com/Avonae/ansible-playbooks.git
 ```
 2. Change the directory:
-```
+```bash
 cd ansible-playbooks
 ```
 3. Change server IP address to yours in `inventory.ini` file
 4. Change root password in `group_vars/all.yml` file
 5. Start the installation 
-```
+```bash
 ansible-playbook playbook.yml
 ```
 After installing you'll get a message with connection details:
 
 ![image](https://github.com/user-attachments/assets/17ab42bf-6fab-4f47-acd8-cd3fac92aa16)
 
-```
+```bash
 ssh server_ip
 ```
 And get connected via sudo user:
@@ -54,7 +54,7 @@ That's it.
 
 # Default variables
 The repository already have variables file in `group_vars/all.yml` like:
-```
+```yaml
 server_user: "user" # Put name of your sudo user here
 super_user_password: "123" # Put your root password here
 time_zone: "Asia/Tbilisi" # Put your timezone password here
