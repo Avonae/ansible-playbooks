@@ -1,0 +1,102 @@
+---
+- name: Hostname
+  ansible.builtin.command:
+    cmd: hostnamectl set-hostname {{ domain_name }}
+  changed_when: ansible_facts['hostname'] != domain_name
+
+- name: Get current timezone
+  ansible.builtin.command:
+    cmd: timedatectl show -p Timezone --value
+  register: current_timezone
+  changed_when: false
+
+- name: Set timezone if it differs
+  ansible.builtin.command:
+    cmd: timedatectl set-timezone {{ time_zone }}
+  become: true
+  changed_when: current_timezone.stdout != time_zone
+
+- name: Install necessary apps
+  ansible.builtin.apt:
+    name: "{{ necessary_packages }}"
+    state: present
+    update_cache: true
+
+- name: Ensure rsyslog is enabled and started
+  ansible.builtin.service:
+    name: rsyslog
+    state: started
+    enabled: true
+  become: true
+  tags: setup_logging
+
+- name: Configure atop logging interval and rotation
+  ansible.builtin.copy:
+    dest: /etc/default/atop
+    mode: "0644"
+    content: |
+      INTERVAL=600
+      LOGPATH="/var/log/atop/"
+      ROTATE=1
+      RC_AFTER="rotate"
+  become: true
+  tags: setup_atop
+
+- name: Check if swap is enabled
+  ansible.builtin.stat:
+    path: /proc/swaps
+  register: swap_info
+
+- name: Disable swap and allocate to main partition
+  tags: disable_swap
+  ansible.builtin.command:
+    cmd: swapoff -a
+  become: true
+  changed_when: swap_info.stat.size > 0
+
+- name: Remove swap entry from /etc/fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: .*swap.*
+    replace: ""
+  become: true
+  tags: disable_swap
+
+- name: Save generated SSH port to ssh_port variable
+  ansible.builtin.set_fact:
+    generated_ssh_port: "{{ ssh_new_port }}"
+    generated_user_password: "{{ user_password }}"
+
+- name: Create a new user with sudo privileges
+  ansible.builtin.user:
+    name: "{{ server_user }}"
+    password: "{{ generated_user_password | ansible.builtin.password_hash('sha512') }}"
+    groups: sudo
+    shell: /bin/bash
+    append: true
+    state: present
+  tags: setup_user
+  become: true
+
+- name: Create temporary directory for user
+  ansible.builtin.file:
+    path: /home/{{ server_user }}/.ansible/tmp
+    state: directory
+    mode: "0700"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+  when: not ansible_check_mode
+  loop:
+    - /home/{{ server_user }}/.ssh
+  tags: setup_user
+  become: false
+
+- name: Save generated password to a temporary file
+  ansible.builtin.copy:
+    dest: /home/{{ server_user }}/.ansible/tmp/user_password.txt
+    content: "{{ generated_user_password }}"
+    mode: "0600"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+  when: not ansible_check_mode
+  tags: setup_user

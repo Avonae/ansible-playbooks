@@ -1,0 +1,72 @@
+---
+- name: Download and install Neovim
+  when: not ansible_check_mode
+  tags: install_nvim
+
+  block:
+    - name: Download Neovim
+      ansible.builtin.get_url:
+        url: https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+        dest: /tmp/nvim-linux64.tar.gz
+        mode: "0600"
+      tags: install_nvim
+
+    - name: Remove existing Neovim installation
+      ansible.builtin.file:
+        path: /opt/nvim
+        state: absent
+      become: true
+      tags: install_nvim
+
+    - name: Extract Neovim to /opt
+      ansible.builtin.unarchive:
+        src: /tmp/nvim-linux64.tar.gz
+        dest: /opt
+        remote_src: true
+      become: true
+      tags: install_nvim
+- name: Add Neovim to PATH and configure aliases in .bashrc
+  ansible.builtin.blockinfile:
+    path: /home/{{ server_user }}/.bashrc
+    insertafter: EOF
+    block: |
+      # Custom bash configurations
+      export HISTTIMEFORMAT="%d/%m/%y %T "
+      alias ls='ls --color=auto'
+      alias ll='ls -alF'
+      alias vim='nvim'
+      export PATH="$PATH:/opt/nvim-linux64/bin"
+  when: not ansible_check_mode
+  tags: setup_bashrc
+
+- name: Read generated password from temporary file
+  ansible.builtin.slurp:
+    src: /home/{{ server_user }}/.ansible/tmp/user_password.txt
+  register: password_content
+  #  become: true
+  when: not ansible_check_mode
+
+- name: Display final connection details
+  ansible.builtin.debug:
+    msg:
+      - Setup completed successfully!
+      - "Use the following details to connect to the server:"
+      - "  - SSH Key Path: ~/.ssh/id_rsa_{{ ansible_host | default(inventory_hostname) }}"
+      - "  - Username: {{ server_user }}"
+      - "  - Password: {{ password_content.content | b64decode }}"
+      - "  - Server IP: {{ ansible_host }}"
+      - "  - SSH Port: {{ generated_ssh_port }}"
+  when: not update_install
+  tags: final_message
+
+- name: Ensure password file exists
+  ansible.builtin.stat:
+    path: /home/{{ server_user }}/.ansible/tmp/user_password.txt
+  register: password_file
+
+- name: Remove temporary password file for user
+  ansible.builtin.file:
+    path: /home/{{ server_user }}/.ansible/tmp/user_password.txt
+    state: absent
+  when: password_file.stat.exists
+  tags: cleanup

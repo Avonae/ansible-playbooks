@@ -1,0 +1,8 @@
+group_vars/
+run_profile_updates.yml
+run_ssh.yml
+dev_playbook.yml
+*.swp
+inventory.ini
+inventory/
+backup/
