@@ -10,17 +10,6 @@ The main actions performed by the playbook are:
 - Adds the SSH port to UFW and enables it
 Additionally, you can also install updates. Once the setup is complete, you can log in using a simple command:
 
-After installing you'll get a message with connection details:
-
-![image](https://github.com/user-attachments/assets/17ab42bf-6fab-4f47-acd8-cd3fac92aa16)
-
-```
-ssh server_ip
-```
-And get connected via sudo user:
-
-![image](https://github.com/user-attachments/assets/ada9fdca-c10c-4e49-b972-941dff3bf337)
-
 The installation consist of 3 parts:
 
 1. System configuration and Setup — tag `system_setup`
@@ -47,13 +36,35 @@ cd ansible-playbooks
 3. Change server IP address to yours in `inventory.ini` file
 4. Change root password in `group_vars/all.yml` file
 5. Start the installation 
+```
+ansible-playbook playbook.yml
+```
+After installing you'll get a message with connection details:
+
+![image](https://github.com/user-attachments/assets/17ab42bf-6fab-4f47-acd8-cd3fac92aa16)
+
+```
+ssh server_ip
+```
+And get connected via sudo user:
+
+![image](https://github.com/user-attachments/assets/ada9fdca-c10c-4e49-b972-941dff3bf337)
+
+That's it.
 
 # Default variables
-The repository already have variables file. 
+The repository already have variables file in `group_vars/all.yml` like:
+```
+server_user: "user" # Put name of your sudo user here
+super_user_password: "123" # Put your root password here
+time_zone: "Asia/Tbilisi" # Put your timezone password here
+```
+Change them for your needs.
 
+# What exactly does the playbook do?
+Detailed list of actions below.
 
-
-# System Configuration and Setup
+## System Configuration and Setup
 
 This role configures core system settings such as hostname, timezone and logging.
 
