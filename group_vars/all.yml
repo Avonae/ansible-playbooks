@@ -1,6 +1,6 @@
 # group_vars/all.yml
 
-#domain_name: "" 
+# domain_name: "" 
 super_user: "root"
 server_user: "user" # Put name of your sudo user here
 ssh_old_port: 22

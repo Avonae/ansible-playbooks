@@ -2,7 +2,7 @@
 - name: Hostname
   ansible.builtin.command:
     cmd: hostnamectl set-hostname {{ domain_name }}
-  when: 
+  when:
     - domain_name is defined
   changed_when: ansible_facts['hostname'] != domain_name
 
