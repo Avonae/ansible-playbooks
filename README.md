@@ -65,7 +65,7 @@ server_user: "user" # Put name of your sudo user here
 ssh_old_port: 22
 time_zone: "Asia/Tbilisi" # Put your timezone here. This is Linux timezone format 
 enable_ufw: true
-update_install: false
+update_install: false # Enable this if you want apt update && apt upgrade will will be executed. Please note that this may take a long time.
 necessary_packages:
   - htop # and other packages
 ```
