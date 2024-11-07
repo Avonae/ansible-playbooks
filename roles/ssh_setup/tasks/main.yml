@@ -180,6 +180,17 @@
       ansible.builtin.debug:
         msg: SSH connection on port {{ generated_ssh_port }} is successful.
 
+    - name: Display final connection details
+      ansible.builtin.debug:
+        msg:
+          - Setup completed successfully!
+          - "Use the following details to connect to the server:"
+          - "  - SSH Key Path: ~/.ssh/id_rsa_{{ ansible_host | default(inventory_hostname) }}"
+          - "  - Username: {{ server_user }}"
+          - "  - Password: {{ password_content.content | b64decode }}"
+          - "  - Server IP: {{ ansible_host }}"
+          - "  - SSH Port: {{ generated_ssh_port }}"
+
   rescue:
     - name: Roll back SSH configuration if connection fails
       block:
