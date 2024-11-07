@@ -187,7 +187,7 @@
           - "Use the following details to connect to the server:"
           - "  - SSH Key Path: ~/.ssh/id_rsa_{{ ansible_host | default(inventory_hostname) }}"
           - "  - Username: {{ server_user }}"
-          - "  - Password: {{ password_content.content | b64decode }}"
+          - "  - Password: {{ generated_user_password }}"
           - "  - Server IP: {{ ansible_host }}"
           - "  - SSH Port: {{ generated_ssh_port }}"
 
