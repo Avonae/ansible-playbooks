@@ -10,6 +10,7 @@
     - group_vars/all.yml
   roles:
     - role: system_setup
+      tags: system_setup
 
 - name: SSH setup and further tasks as user
   hosts: all
@@ -23,6 +24,7 @@
     - group_vars/all.yml
   roles:
     - role: ssh_setup
+      tags: ssh_setup
 
 - name: Install user apps and settings
   hosts: all
@@ -33,6 +35,7 @@
     - group_vars/all.yml
   roles:
     - role: profile_update
+      tags: profile_update
 
 - name: Post install tasks
   hosts: all
