@@ -1,4 +1,4 @@
-# Ansible Ubuntu server secure setup
+# Ubuntu server Ansible secure setup
 [![ansible-lint](https://github.com/Avonae/ansible-playbooks/actions/workflows/ansible-lint.yml/badge.svg?branch=main)](https://github.com/Avonae/ansible-playbooks/actions/workflows/ansible-lint.yml)
 
 This playbook allows you to configure Ubuntu quickly and securely. Assuming that [Ansible has been already installed](https://docs.ansible.com/ansible/latest/installation_guide/) on your system.
