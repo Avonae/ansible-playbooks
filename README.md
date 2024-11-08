@@ -18,7 +18,7 @@ The installation consist of 3 parts:
 
 You can skip the `profile_update` and `ssh_setup` tags, but you can't skip `system_setup` because a user is created there which is used in the following roles.
 
-```bash
+```shell
 ansible-playbook playbook.yml --tags "system_setup,ssh_setup"
 ```
 
@@ -26,24 +26,24 @@ ansible-playbook playbook.yml --tags "system_setup,ssh_setup"
 For default installation you should have a clean ubuntu server with `root` user available through SSH.
 
 1. Download the repository:
-```bash
+```shell
 git clone https://github.com/Avonae/ansible-playbooks.git
 ```
 2. Change the directory:
-```bash
+```shell
 cd ansible-playbooks
 ```
 3. Change server IP address to yours in `inventory.ini` file
 4. Change root password in `group_vars/all.yml` file
 5. Start the installation 
-```bash
+```shell
 ansible-playbook playbook.yml
 ```
 After installing you'll get a message with connection details:
 
 ![image](https://github.com/user-attachments/assets/17ab42bf-6fab-4f47-acd8-cd3fac92aa16)
 
-```bash
+```shell
 ssh server_ip
 ```
 And get connected via sudo user:
@@ -80,24 +80,21 @@ This role configures core system settings such as hostname, timezone and logging
 
 1. Set Hostname
 2. Set Timezone
-3. Install Necessary Packages
-4. Enable and Configure Logging
-5. Disable Swap
-6. User and SSH Port Management
-7. Create Temporary Directories for the User
+3. Install Necessary Packages an enable rsyslog
+4. Disable Swap
+5. Create user and adding it to `sudo` group
+
 ---
 ## Secure SSH Configuration
 
 This role secures SSH access on the server by setting up RSA key-based authentication, and disabling root login and password-based authentication.
 
-1. Ensure .ssh Directory
-2. Generate SSH Key Pair
+1. Generate SSH Key Pair
 3. Add Public Key to Authorized Keys
-4. Configure SSH Daemon for Security
-5. Update UFW Rules
-6. Configure Local SSH Client Settings
-7. Manage SSH Service
-8. Rollback on Failure
+4. Disable SSH socket daemon and enable SSH old-fashioned service
+5. Adding new generated SSH port to UFW
+6. Adding user, port, IP-address and private kay to ~/.ssh/config file on host machine
+7. Restarting SSH Service
 
 ---
 
@@ -105,10 +102,8 @@ This role secures SSH access on the server by setting up RSA key-based authentic
 
 This role installs Neovim, adds it to the user’s `PATH`, and customizes the user’s profile settings in `.bashrc` for enhanced productivity.
 
-1. Download and Install Neovim
-2. Configure `.bashrc` for User
-3. Display Connection Information
-4. Cleanup Temporary Password File
+1. Neovim installation
+2. Activating `.bashrc` aliases and make alias for vim=nvim
 
 ## Post tasks
 Post tasks include 
