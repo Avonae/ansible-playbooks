@@ -8,7 +8,7 @@ The main actions performed by the playbook are:
 - Disables root authentication and password authentication
 - Adds the server's IP, port, and username to ~/.ssh/config on the host machine
 - Adds the SSH port to UFW and enables it
-Additionally, you can also install updates. Once the setup is complete, you can log in using a simple command:
+Additionally, you can also install updates. 
 
 The installation consist of 3 parts:
 
