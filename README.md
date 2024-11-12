@@ -109,3 +109,9 @@ This role installs Neovim, adds it to the user’s `PATH`, and customizes the us
 Post tasks include 
 1. Apt ugrade -y
 2. Enabling UFW if you the the `ufw_enable` variable is set
+
+# What's next?
+I want to add this feauters later:
+- docker rootless setup
+- saving generated user password for later usage in Ansible vault
+- outline server install and restore from backup
