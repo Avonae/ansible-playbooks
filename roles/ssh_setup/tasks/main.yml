@@ -1,107 +1,83 @@
 ---
-- name: Ensure .ssh directory exists
-  ansible.builtin.file:
-    path: /home/{{ server_user }}/.ssh
-    state: directory
-    mode: "0700"
-    owner: "{{ server_user }}"
-    group: "{{ server_user }}"
-  when: not ansible_check_mode
+    - name: Ensure .ssh directory exists
+        ansible.builtin.file:
+            path: /home/{{ server_user }}/.ssh
+            state: directory
+            mode: "0700"
+            owner: "{{ server_user }}"
+            group: "{{ server_user }}"
+        when: not ansible_check_mode
 
-- name: Generate SSH key pair
-  community.crypto.openssh_keypair:
-    path: ~/.ssh/id_rsa_{{ ansible_host }}
-    state: present
-    type: rsa
-    size: 2048
-  delegate_to: localhost
-  run_once: true
-  when: not ansible_check_mode
-  tags: setup_ssh
+    - name: Generate SSH key pair
+        community.crypto.openssh_keypair:
+            path: ~/.ssh/id_rsa_{{ ansible_host }}
+            state: present
+            type: rsa
+            size: 2048
+        delegate_to: localhost
+        run_once: true
+        when: not ansible_check_mode
+        tags: setup_ssh
 
-- name: Copy public key to authorized_keys on remote server
-  ansible.posix.authorized_key:
-    user: "{{ server_user }}"
-    state: present
-    key: "{{ lookup('file', '~/.ssh/id_rsa_{{ ansible_host }}.pub') }}"
-  when: not ansible_check_mode
-  tags: setup_ssh
+    - name: Copy public key to authorized_keys on remote server
+        ansible.posix.authorized_key:
+            user: "{{ server_user }}"
+            state: present
+            key: "{{ lookup('file', '~/.ssh/id_rsa_{{ ansible_host }}.pub') }}"
+        when: not ansible_check_mode
+        tags: setup_ssh
 
-- name: Set file permissions to 600
-  ansible.builtin.file:
-    path: /home/{{ server_user }}/.ssh/authorized_keys
-    mode: "0600"
-  when: not ansible_check_mode
+    - name: Set file permissions to 600
+        ansible.builtin.file:
+            path: /home/{{ server_user }}/.ssh/authorized_keys
+            mode: "0600"
+        when: not ansible_check_mode
 
-- name: Check ownership of home directory
-  ansible.builtin.stat:
-    path: /home/{{ server_user }}
-  register: home_dir_info
+    - name: Check ownership of home directory
+        ansible.builtin.stat:
+            path: /home/{{ server_user }}
+        register: home_dir_info
 
-- name: Fail if home directory is folder and file permissions aren't correct
-  ansible.builtin.fail:
-    msg: The home directory '/home/{{ server_user }}' is not owned by '{{ server_user }}'. Please check the ownership.
-  when:
-    - not ansible_check_mode
-    - home_dir_info.stat.pw_name != server_user
-    - authorized_keys_info.stat.mode is not defined or authorized_keys_info.stat.mode != "0600"
+    - name: Fail if home directory is folder and file permissions aren't correct
+        ansible.builtin.fail:
+            msg: The home directory '/home/{{ server_user }}' is not owned by '{{ server_user }}'. Please check the ownership.
+        when:
+            - not ansible_check_mode
+            - home_dir_info.stat.pw_name != server_user
+            - authorized_keys_info.stat.mode is not defined or authorized_keys_info.stat.mode != "0600"
 
-- name: Enable pub key authentication in SSH
-  become: true
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: ^(.*)PubkeyAuthentication(.*)$
-    line: PubkeyAuthentication yes
+    - name: Create directory for SSH configuration snippets
+        ansible.builtin.file:
+            path: /etc/ssh/ssh_config.d/
+            state: directory
+            mode: "0755"
 
-- name: Configure secure SSH with RSA keys and without password login
-  tags: setup_ssh
-  block:
-    - name: Enable pub key authentication in SSH
-      ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: ^(.*)PubkeyAuthentication(.*)$
-        line: PubkeyAuthentication yes
-      become: true
+    - name: Configure SSH settings
+        ansible.builtin.copy:
+            dest: /etc/ssh/ssh_config.d/custom_config.conf
+            content: |
+              PubkeyAuthentication yes
+              Port {{ generated_ssh_port }}
+              PermitRootLogin no
+              UsePAM no
+              PasswordAuthentication no
+            mode: "0644"
 
-    - name: Set SSH to a random port
-      ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: "^#?Port "
-        line: Port {{ generated_ssh_port }}
-        state: present
-      become: true
+    - name: Include the SSH config directory in the main SSH configuration
+        ansible.builtin.lineinfile:
+            path: /etc/ssh/sshd_config
+            regexp: "^#?Include /etc/ssh/ssh_config.d/.*"
+            line: "Include /etc/ssh/ssh_config.d/*"
 
-    - name: Disable root SSH login
-      ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: "^#?PermitRootLogin "
-        line: PermitRootLogin no
-        state: present
-      become: true
+    - name: Restart the SSH service
+        ansible.builtin.service:
+            name: ssh
+            state: restarted
 
-    - name: Disable PAM authentification
-      ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: ^#?UsePAM
-        line: UsePAM no
-        state: present
-      become: true
-
-    - name: Disable SSH password authentication
-      ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: "^#?PasswordAuthentication "
-        line: PasswordAuthentication no
-        state: present
-      become: true
-
-    - name: Ensure new SSH port is open in UFW
-      community.general.ufw:
-        rule: allow
-        port: "{{ generated_ssh_port }}"
-        proto: tcp
-      when: not ansible_check_mode
-      become: true
+    - name: Test SSH connectivity after configuration change
+        ansible.builtin.command:
+            cmd: "ssh -o BatchMode=yes -p {{ generated_ssh_port }} {{ server_user }}@{{ inventory_hostname }} exit"
+        register: post_change_ssh_test
 
     - name: Adding RSA key to ~/.ssh/config file for IP address
       ansible.builtin.blockinfile:
@@ -191,35 +167,24 @@
           - "  - Server IP: {{ ansible_host }}"
           - "  - SSH Port: {{ generated_ssh_port }}"
 
-  rescue:
-    - name: Roll back SSH configuration if connection fails
-      block:
-        - name: Restore default SSH port (22)
-          ansible.builtin.lineinfile:
-            path: /etc/ssh/sshd_config
-            regexp: "^Port "
-            line: Port 22
-            state: present
-          become: true
+      rescue:
+        - name: Remove custom SSH configuration file
+          ansible.builtin.file:
+            path: /etc/ssh/ssh_config.d/custom_config.conf
+            state: absent
 
-        - name: Re-enable root login over SSH
-          ansible.builtin.lineinfile:
-            path: /etc/ssh/sshd_config
-            regexp: "^PermitRootLogin "
-            line: PermitRootLogin yes
-            state: present
-          become: true
-
-        - name: Re-enable SSH password authentication
-          ansible.builtin.lineinfile:
-            path: /etc/ssh/sshd_config
-            regexp: "^PasswordAuthentication "
-            line: PasswordAuthentication yes
-            state: present
-          become: true
-
-        - name: Restart SSH to apply rollback
+        - name: Restart SSH service to revert changes
           ansible.builtin.service:
             name: ssh
             state: restarted
-          become: true
+
+        - name: Fail and alert about the rollback
+          ansible.builtin.fail:
+            msg: >
+              SSH changes failed verification. Rolled back to the original state.
+              Investigate and reapply the configuration carefully.
+
+    - name: Confirm successful SSH connection after all changes
+      ansible.builtin.debug:
+        msg: "SSH configuration updated successfully and verified. Connect using port {{ generated_ssh_port }}."
+      when: post_change_ssh_test.rc == 0

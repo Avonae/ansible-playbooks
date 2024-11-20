@@ -4,3 +4,4 @@ dev_playbook.yml
 *.swp
 inventory/
 backup/
+users/
