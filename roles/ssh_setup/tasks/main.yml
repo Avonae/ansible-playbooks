@@ -3,7 +3,7 @@
   hosts: all
   become: true
   vars:
-    generated_ssh_port: 2222  # Укажите желаемый порт
+    generated_ssh_port: 2222  # Specify the desired SSH port
   tasks:
 
     - name: Ensure SSH config directory exists
@@ -25,6 +25,51 @@
         group: root
         mode: "0644"
 
+    - name: Check ownership of home directory
+      ansible.builtin.stat:
+        path: /home/{{ server_user }}
+      register: home_dir_info
+
+    - name: Fail if home directory ownership is incorrect
+      ansible.builtin.fail:
+        msg: "The home directory '/home/{{ server_user }}' is not owned by '{{ server_user }}'. Please check the ownership."
+      when:
+        - not ansible_check_mode
+        - home_dir_info.stat.pw_name != server_user
+
+    - name: Adding RSA key to ~/.ssh/config file for IP address
+      ansible.builtin.blockinfile:
+        path: "{{ lookup('env', 'HOME') }}/.ssh/config"
+        create: true
+        block: |
+          Host {{ inventory_hostname }}
+             HostName {{ inventory_hostname }}
+             User {{ server_user }}
+             Port {{ generated_ssh_port }}
+             IdentityFile ~/.ssh/id_rsa_{{ inventory_hostname }}
+             IdentitiesOnly yes
+        marker: "# {mark} Ansible managed block for {{ inventory_hostname }}"
+        mode: "0600"
+      tags: setup_ssh
+      connection: local
+
+    - name: Adding RSA key to ~/.ssh/config file for domain name
+      ansible.builtin.blockinfile:
+        path: "{{ lookup('env', 'HOME') }}/.ssh/config"
+        create: true
+        block: |
+          Host {{ domain_name }}
+             HostName {{ domain_name }}
+             User {{ server_user }}
+             Port {{ generated_ssh_port }}
+             IdentityFile ~/.ssh/id_rsa_{{ domain_name }}
+             IdentitiesOnly yes
+        marker: "# {mark} Ansible managed block for {{ domain_name }}"
+        mode: "0600"
+      when: domain_name is defined and domain_name | length > 0
+      tags: setup_ssh
+      connection: local
+    
     - name: Disable and stop ssh.socket
       ansible.builtin.systemd:
         name: ssh.socket
