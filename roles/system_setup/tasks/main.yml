@@ -1,4 +1,12 @@
 ---
+- name: Make sure we can use htpasswd and sshpass modules
+  ansible.builtin.apt:
+    name:
+      #  - python3-passlib  # Install passlib for the htpasswd module
+      - sshpass          # Install sshpass to enable password-based SSH authentication in Ansible
+    state: present
+    update_cache: yes    # Update package cache before installation
+    
 - name: Hostname
   ansible.builtin.command:
     cmd: hostnamectl set-hostname {{ domain_name }}
