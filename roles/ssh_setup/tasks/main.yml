@@ -107,14 +107,3 @@
 - name: Confirm successful SSH connection
   ansible.builtin.debug:
     msg: "SSH connection on port {{ generated_ssh_port }} is successful."
-
-rescue:
-  - name: Remove SSH custom config file if setup fails
-    ansible.builtin.file:
-      path: /etc/ssh/sshd_config.d/10-ssh-config.conf
-      state: absent
-
-  - name: Restart SSH to apply rollback
-    ansible.builtin.systemd:
-      name: ssh
-      state: restarted
