@@ -30,14 +30,15 @@
     - not ansible_check_mode
     - home_dir_info.stat.pw_name != server_user
 
-- name: Generate SSH key pair
+- name: Generate SSH key
   community.crypto.openssh_keypair:
     path: ~/.ssh/id_rsa_{{ ansible_host }}
     state: present
     type: rsa
     size: 2048
   delegate_to: localhost
-  run_once: true
+  connection: local
+  become: false
   when: not ansible_check_mode
 
 - name: Add public key to authorized_keys
@@ -45,7 +46,10 @@
     user: "{{ server_user }}"
     state: present
     key: "{{ lookup('file', '~/.ssh/id_rsa_{{ ansible_host }}.pub') }}"
+    path: "/home/{{ server_user }}/.ssh/authorized_keys"
+    manage_dir: true
   when: not ansible_check_mode
+  become: false
 
 - name: Set file permissions to 600
   ansible.builtin.file:
