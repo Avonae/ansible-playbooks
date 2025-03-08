@@ -39,7 +39,13 @@
   delegate_to: localhost
   run_once: true
   when: not ansible_check_mode
-  tags: setup_ssh
+
+- name: Add public key to authorized_keys
+  ansible.posix.authorized_key:
+    user: "{{ server_user }}"
+    state: present
+    key: "{{ lookup('file', '~/.ssh/id_rsa_{{ ansible_host }}.pub') }}"
+  when: not ansible_check_mode
 
 - name: Set file permissions to 600
   ansible.builtin.file:
