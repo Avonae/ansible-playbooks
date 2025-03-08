@@ -74,20 +74,33 @@
   connection: local
   become: false
 
+- name: Generate SSH key for domain
+  community.crypto.openssh_keypair:
+    path: "~/.ssh/id_rsa_{{ inventory_hostname if inventory_hostname != ansible_host else domain_name }}"
+    state: present
+    type: rsa
+    size: 2048
+  delegate_to: localhost
+  connection: local
+  become: false
+  when: 
+    - not ansible_check_mode
+    - (inventory_hostname != ansible_host) or (domain_name is defined and domain_name | length > 0)
+
 - name: Adding RSA key to ~/.ssh/config file for domain name
   ansible.builtin.blockinfile:
     path: "~/.ssh/config"
     create: true
     block: |
-      Host {{ domain_name }}
-         HostName {{ domain_name }}
+      Host {{ inventory_hostname if inventory_hostname != ansible_host else domain_name }}
+         HostName {{ inventory_hostname if inventory_hostname != ansible_host else domain_name }}
          User {{ server_user }}
          Port {{ generated_ssh_port }}
-         IdentityFile ~/.ssh/id_rsa_{{ domain_name }}
+         IdentityFile ~/.ssh/id_rsa_{{ inventory_hostname if inventory_hostname != ansible_host else domain_name }}
          IdentitiesOnly yes
-    marker: "# {mark} Ansible managed block for {{ domain_name }}"
+    marker: "# {mark} Ansible managed block for {{ inventory_hostname if inventory_hostname != ansible_host else domain_name }}"
     mode: "0600"
-  when: domain_name is defined and domain_name | length > 0
+  when: (inventory_hostname != ansible_host) or (domain_name is defined and domain_name | length > 0)
   tags: setup_ssh
   connection: local
   become: false
