@@ -35,13 +35,13 @@
     path: "{{ lookup('env', 'HOME') }}/.ssh/config"
     create: true
     block: |
-      Host {{ inventory_hostname }}
-         HostName {{ inventory_hostname }}
+      Host {{ ansible_host }}
+         HostName {{ ansible_host }}
          User {{ server_user }}
          Port {{ generated_ssh_port }}
-         IdentityFile ~/.ssh/id_rsa_{{ inventory_hostname }}
+         IdentityFile ~/.ssh/id_rsa_{{ ansible_host }}
          IdentitiesOnly yes
-    marker: "# {mark} Ansible managed block for {{ inventory_hostname }}"
+    marker: "# {mark} Ansible managed block for {{ ansible_host }}"
     mode: "0600"
   tags: setup_ssh
   connection: local
