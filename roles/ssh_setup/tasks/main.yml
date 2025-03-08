@@ -30,6 +30,23 @@
     - not ansible_check_mode
     - home_dir_info.stat.pw_name != server_user
 
+- name: Generate SSH key pair
+  community.crypto.openssh_keypair:
+    path: ~/.ssh/id_rsa_{{ ansible_host }}
+    state: present
+    type: rsa
+    size: 2048
+  delegate_to: localhost
+  run_once: true
+  when: not ansible_check_mode
+  tags: setup_ssh
+
+- name: Set file permissions to 600
+  ansible.builtin.file:
+    path: /home/{{ server_user }}/.ssh/authorized_keys
+    mode: "0600"
+  when: not ansible_check_mode
+
 - name: Adding RSA key to ~/.ssh/config file for IP address
   ansible.builtin.blockinfile:
     path: "~/.ssh/config"
