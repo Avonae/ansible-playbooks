@@ -7,7 +7,7 @@
     - name: Download Neovim
       ansible.builtin.get_url:
         url: https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
-        dest: /tmp/nvim-linux64.tar.gz
+        dest: /tmp/nvim-linux-x86_64.tar.gz
         mode: "0600"
       tags: install_nvim
 
@@ -20,14 +20,15 @@
 
     - name: Extract Neovim to /opt
       ansible.builtin.unarchive:
-        src: /tmp/nvim-linux64.tar.gz
+        src: /tmp/nvim-linux-x86_64.tar.gz
         dest: /opt
         remote_src: true
       become: true
       tags: install_nvim
+
 - name: Add Neovim to PATH and configure aliases in .bashrc
   ansible.builtin.blockinfile:
-    path: /home/{{ server_user }}/.bashrc
+    path: ~/.bashrc
     insertafter: EOF
     block: |
       # Custom bash configurations
@@ -35,7 +36,7 @@
       alias ls='ls --color=auto'
       alias ll='ls -alF'
       alias vim='nvim'
-      export PATH="$PATH:/opt/nvim-linux64/bin"
+      export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
   when: not ansible_check_mode
   tags: setup_bashrc
 
@@ -43,7 +44,6 @@
   ansible.builtin.slurp:
     src: /home/{{ server_user }}/.ansible/tmp/user_password.txt
   register: password_content
-  #  become: true
   when: not ansible_check_mode
 
 - name: Ensure password file exists
