@@ -4,3 +4,5 @@ dev_playbook.yml
 *.swp
 inventory/
 backup/
+user_password.txt
+ssh_port.txt
