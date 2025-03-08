@@ -41,13 +41,29 @@
   become: false
   when: not ansible_check_mode
 
-- name: Add public key to authorized_keys
+- name: Generate SSH key for domain
+  community.crypto.openssh_keypair:
+    path: "~/.ssh/id_rsa_{{ inventory_hostname if inventory_hostname != ansible_host else domain_name }}"
+    state: present
+    type: rsa
+    size: 2048
+  delegate_to: localhost
+  connection: local
+  become: false
+  when: 
+    - not ansible_check_mode
+    - (inventory_hostname != ansible_host) or (domain_name is defined and domain_name | length > 0)
+
+- name: Add public keys to authorized_keys
   ansible.posix.authorized_key:
     user: "{{ server_user }}"
     state: present
-    key: "{{ lookup('file', '~/.ssh/id_rsa_{{ ansible_host }}.pub') }}"
+    key: "{{ item }}"
     path: "/home/{{ server_user }}/.ssh/authorized_keys"
     manage_dir: true
+  loop:
+    - "{{ lookup('file', '~/.ssh/id_rsa_{{ ansible_host }}.pub') }}"
+    - "{{ lookup('file', '~/.ssh/id_rsa_{{ inventory_hostname if inventory_hostname != ansible_host else domain_name }}.pub') if (inventory_hostname != ansible_host) or (domain_name is defined and domain_name | length > 0) else '' }}"
   when: not ansible_check_mode
   become: false
 
@@ -73,19 +89,6 @@
   tags: setup_ssh
   connection: local
   become: false
-
-- name: Generate SSH key for domain
-  community.crypto.openssh_keypair:
-    path: "~/.ssh/id_rsa_{{ inventory_hostname if inventory_hostname != ansible_host else domain_name }}"
-    state: present
-    type: rsa
-    size: 2048
-  delegate_to: localhost
-  connection: local
-  become: false
-  when: 
-    - not ansible_check_mode
-    - (inventory_hostname != ansible_host) or (domain_name is defined and domain_name | length > 0)
 
 - name: Adding RSA key to ~/.ssh/config file for domain name
   ansible.builtin.blockinfile:
