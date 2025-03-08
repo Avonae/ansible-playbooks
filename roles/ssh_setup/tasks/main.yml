@@ -50,7 +50,7 @@
   delegate_to: localhost
   connection: local
   become: false
-  when: 
+  when:
     - not ansible_check_mode
     - (inventory_hostname != ansible_host) or (domain_name is defined and domain_name | length > 0)
 
@@ -63,9 +63,10 @@
     manage_dir: true
   loop:
     - "{{ lookup('file', '~/.ssh/id_rsa_{{ ansible_host }}.pub') }}"
-    - "{{ lookup('file', '~/.ssh/id_rsa_{{ inventory_hostname if inventory_hostname != ansible_host else domain_name }}.pub') if (inventory_hostname != ansible_host) or (domain_name is defined and domain_name | length > 0) else '' }}"
+    - "{{ lookup('file', '~/.ssh/id_rsa_{{ domain_name }}.pub') if domain_name is defined and domain_name | length > 0 else '' }}"
   when: not ansible_check_mode
   become: false
+  failed_when: false
 
 - name: Set file permissions to 600
   ansible.builtin.file:
