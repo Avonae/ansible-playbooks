@@ -32,7 +32,7 @@
 
 - name: Adding RSA key to ~/.ssh/config file for IP address
   ansible.builtin.blockinfile:
-    path: "{{ lookup('env', 'HOME') }}/.ssh/config"
+    path: "~/.ssh/config"
     create: true
     block: |
       Host {{ ansible_host }}
@@ -45,10 +45,11 @@
     mode: "0600"
   tags: setup_ssh
   connection: local
+  become: false
 
 - name: Adding RSA key to ~/.ssh/config file for domain name
   ansible.builtin.blockinfile:
-    path: "{{ lookup('env', 'HOME') }}/.ssh/config"
+    path: "~/.ssh/config"
     create: true
     block: |
       Host {{ domain_name }}
@@ -62,6 +63,7 @@
   when: domain_name is defined and domain_name | length > 0
   tags: setup_ssh
   connection: local
+  become: false
 
 - name: Disable and stop ssh.socket
   ansible.builtin.systemd:
