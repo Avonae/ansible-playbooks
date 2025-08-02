@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden-Runner
-        uses: step-security/harden-runner@v2.12.1
+        uses: step-security/harden-runner@v2.13.0
         with:
           egress-policy: audit
 
