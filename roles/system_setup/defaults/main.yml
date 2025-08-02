@@ -6,27 +6,4 @@ ssh_old_port: 22
 ssh_new_port: "{{ 30000 | random(20000) }}"
 user_password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=16) }}"
 time_zone: "Asia/Tbilisi"
-necessary_packages:
-  - htop
-  - telnet
-  - tcpdump
-  - nmap
-  - curl
-  - zip
-  - unzip
-  - vim
-  - less
-  - lsof
-  - strace
-  - ncdu
-  - smartmontools
-  - tree
-  - rsyslog
-  - git
-  - uidmap
-  - atop
-  - ufw
-  - dbus-user-session
-  - ca-certificates
-  - fail2ban
 domain_name: ""

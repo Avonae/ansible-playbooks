@@ -27,7 +27,29 @@
 
 - name: Install necessary apps
   ansible.builtin.apt:
-    name: "{{ necessary_packages }}"
+    name:
+      - htop
+      - telnet
+      - tcpdump
+      - nmap
+      - curl
+      - zip
+      - unzip
+      - vim
+      - less
+      - lsof
+      - strace
+      - ncdu
+      - smartmontools
+      - tree
+      - rsyslog
+      - git
+      - uidmap
+      - atop
+      - ufw
+      - dbus-user-session
+      - ca-certificates
+      - fail2ban
     state: present
     update_cache: true
 
