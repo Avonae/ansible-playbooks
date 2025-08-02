@@ -1,0 +1,32 @@
+---
+# Preinstall tasks (moved from playbook inline tasks)
+- name: System upgrade
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: dist
+    autoremove: true
+    cache_valid_time: 3600
+  when: update_install | default(false)
+
+- name: Check UFW status
+  ansible.builtin.command: ufw status
+  register: ufw_check
+  changed_when: false
+
+- name: Enable UFW
+  ansible.builtin.command: ufw --force enable
+  register: ufw_status
+  changed_when: "'inactive' in ufw_check.stdout"
+  when: enable_ufw | default(false)
+
+- name: Display final connection details
+  ansible.builtin.debug:
+    msg:
+      - Setup completed successfully!
+      - "Use the following details to connect to the server:"
+      - "  - SSH Key Path: ~/.ssh/id_rsa_{{ ansible_host | default(inventory_hostname) }}"
+      - "  - Username: {{ server_user }}"
+      - "  - Password: {{ password_content.content | b64decode }}"
+      - "  - Server IP: {{ ansible_host }}"
+      - "  - SSH Port: {{ generated_ssh_port }}"
+      - "  - UFW status: {{ ufw_status.stdout }}"
