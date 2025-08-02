@@ -1,8 +1,7 @@
 ---
-profile: production
 exclude_paths:
   - .git/
   - .github/
   - requirements.yml
 skip_list:
-  - var-naming[no-role-prefix]   # отключить правило про префикс имени роли
+  - var-naming[no-role-prefix]   # disable variables naming check
