@@ -1,5 +1,5 @@
 ---
-server_user: "user"               # Sudo user name
-ssh_old_port: 22                  # Original SSH port
-ssh_new_port: "{{ 30000 | random(20000) }}"  # New SSH port
-domain_name: ""                   # Optional domain name for key generation
+server_user: "user" # Sudo user name
+ssh_old_port: 22 # Original SSH port
+ssh_new_port: "{{ 30000 | random(20000) }}" # New SSH port
+domain_name: "" # Optional domain name for key generation

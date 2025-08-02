@@ -1,5 +1,5 @@
 ---
-# Preinstall tasks (moved from playbook inline tasks)
+# Preinstall tasks
 - name: System upgrade
   ansible.builtin.apt:
     update_cache: true
