@@ -3,4 +3,12 @@
   "extends": [
     "config:recommended"
   ]
+  "properties": {
+    "packageRules": [
+    {
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true
+    }
+    ]
+      }
 }
