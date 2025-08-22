@@ -1,0 +1,32 @@
+services:
+  rocketchat:
+    container_name: rocketchat
+    image: "{{ image | default('registry.rocket.chat/rocketchat/rocket.chat') }}:{{ release | default('latest') }}"
+    restart: always
+    labels:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "{{ metrics_port | default('9458') }}"
+    environment:
+      ROOT_URL: "{{ root_url | default('http://localhost') }}"
+      PORT: "{{ port | default('3000') }}"
+      DEPLOY_METHOD: docker
+      DEPLOY_PLATFORM: compose
+      REG_TOKEN: "{{ reg_token | default('') }}"
+      LICENSE_DEBUG: true
+      OVERWRITE_SETTING_Prometheus_Enabled: true
+      OVERWRITE_SETTING_Prometheus_Port: "{{ metrics_port | default('9458') }}"
+      MONGO_URL: "{{ mongo_url | default('mongodb://mongodb:27017/rocketchat?replicaSet=rs0') }}"
+      TRANSPORTER: "{{ transporter | default('monolith+nats://nats:4222') }}"
+      INSTANCE_IP: "{{ instance_ip | default('') }}"
+    expose:
+      - "{{ port | default('3000') }}"
+      - "{{ metrics_port | default('9458') }}"
+    ports:
+      - "{{ bind_ip | default('0.0.0.0') }}:{{ host_port | default('3000') }}:{{ port | default('3000') }}"
+      - "{{ bind_ip | default('0.0.0.0') }}:{{ metrics_port | default('9458') }}:{{ metrics_port | default('9458') }}"
+    # healthcheck:
+    #   test: ["CMD", "nc", "-zv", "-w", "10", "rocketchat", "{{ port | default('3000') }}"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 10
+    #   start_period: 30s

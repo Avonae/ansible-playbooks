@@ -1,0 +1,6 @@
+---
+service_name: "Rocketchat"
+docker_compose_path: "/opt/docker/apps/{{ service_name }}"
+service_path: "/etc/systemd/system/"
+domain:
+rocketchat_version:
